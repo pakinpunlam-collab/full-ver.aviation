@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviation Industry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700&display=swap');
+
+  :root {
+    --airline:   #68ed20;
+    --airport:   #4b9ef1;
+    --reg:       #54A0FF;
+    --ground:    #A29BFE;
+    --cargo:     #b67616;
+    --mro:       #929292;
+    --catering:  #FFC312;
+    --dark:      #0d1117;
+    --card-bg:   rgba(255,255,255,0.06);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', 'Kanit', sans-serif;
+    background: var(--dark);
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SLIDE SYSTEM ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── NAV ── */
+  #nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    padding: 10px 24px;
+  }
+  #nav button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    padding: 4px 8px;
+  }
+  #nav button:hover { opacity: 1; }
+  #slide-counter {
+    font-size: 13px;
+    opacity: 0.5;
+    min-width: 60px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+  }
+  .dot-nav {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .dot.active { background: white; width: 18px; border-radius: 3px; }
+
+  /* ── STARFIELD ── */
+  .stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: var(--min, 0.1); }
+    50% { opacity: var(--max, 0.6); }
+  }
+
+  /* ── SLIDE 1: COVER ── */
+  #slide-1 {
+    background: radial-gradient(ellipse at 30% 40%, #1a1f3a 0%, #0d1117 60%);
+  }
+  .cover-runway-lights {
+    position: absolute;
+    bottom: 80px; left: 0; right: 0;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 0;
+    gap: 0;
+  }
+  .runway-strip {
+    display: flex;
+    gap: 80px;
+    align-items: center;
+    margin: 10px 0;
+  }
+  .rwy-light {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 12px 4px var(--c), 0 0 24px 8px color-mix(in srgb, var(--c) 40%, transparent);
+    animation: rwy-blink 2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 0.2s);
+  }
+  .runway-strip:nth-child(3) .rwy-light { animation-delay: calc(var(--i, 0) * 0.2s + 1s); }
+  @keyframes rwy-blink {
+    0%,100% { opacity: 0.4; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+  .runway-center-line {
+    width: 600px; height: 2px;
+    background: repeating-linear-gradient(to right, rgba(255,255,255,0.3) 0px, rgba(255,255,255,0.3) 40px, transparent 40px, transparent 70px);
+    margin: 4px 0;
+  }
+
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 180px;
+    background: linear-gradient(to top, rgba(255,255,255,0.03), transparent);
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .cover-runway::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 4px; height: 80px;
+    background: repeating-linear-gradient(to bottom, #FFC312 0px, #FFC312 20px, transparent 20px, transparent 36px);
+    box-shadow: -80px 0 0 #FFC312, 80px 0 0 #FFC312;
+    opacity: 0.4;
+  }
+  .cover-plane {
+    font-size: 72px;
+    animation: float 4s ease-in-out infinite;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 0 30px rgba(255,195,18,0.4));
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-14px) rotate(-5deg); }
+  }
+  .cover-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: 2px;
+  }
+  .cover-title span {
+    background: linear-gradient(135deg, #FF6B6B, #FF9F43, #FFC312, #54A0FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover-sub {
+    margin-top: 16px;
+    font-size: 15px;
+    opacity: 0.5;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .cover-badges {
+    display: flex;
+    gap: 10px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: 1px solid currentColor;
+    opacity: 0.7;
+  }
+
+  /* ── SLIDE 2: TOC ── */
+  #slide-2 {
+    background: linear-gradient(135deg, #0d1117 0%, #0f1923 100%);
+  }
+  .toc-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    opacity: 0.4;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+  .toc-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 32px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .toc-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .toc-item:nth-child(1)::before { background: linear-gradient(135deg, rgba(255,107,107,0.15), rgba(255,159,67,0.1)); }
+  .toc-item:nth-child(2)::before { background: linear-gradient(135deg, rgba(84,160,255,0.15), rgba(162,155,254,0.1)); }
+  .toc-item.lit::before { opacity: 1; }
+  .toc-item.lit {
+    border-color: rgba(255,255,255,0.2);
+    transform: translateX(8px);
+  }
+  .toc-num {
+    font-family: 'Kanit', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    opacity: 0.12;
+    line-height: 1;
+    min-width: 52px;
+  }
+  .toc-item.lit .toc-num { opacity: 0.4; }
+  .toc-content h3 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .toc-content p {
+    font-size: 13px;
+    opacity: 0.5;
+    margin-top: 4px;
+  }
+  .toc-arrow {
+    margin-left: auto;
+    font-size: 20px;
+    opacity: 0;
+    transition: all 0.3s;
+    transform: translateX(-10px);
+  }
+  .toc-item.lit .toc-arrow { opacity: 0.6; transform: translateX(0); }
+
+  /* ── PLAYER SLIDES (3–9) ── */
+  .player-slide {
+    background: #0d1117;
+  }
+  .player-bg-accent {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    pointer-events: none;
+    top: -100px; right: -100px;
+  }
+  .player-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 48px;
+    width: 100%;
+    max-width: 960px;
+    align-items: start;
+  }  .player-tag {
+    font-size: 11px;
+    letter-spacing: 4px;
+    opacity: 0.4;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }  .player-title-en {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 900;
+    line-height: 1.1;
+  }
+  .player-title-th {
+    font-family: 'Kanit', sans-serif;
+    font-size: 16px;
+    opacity: 0.5;
+    margin-top: 4px;
+  }
+  .player-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .player-icon {
+    font-size: 34px;
+    line-height: 1;
+  }
+  .player-photo {
+    display: block;
+    width: 200px;
+    max-width: 100%;
+    border-radius: 16px;
+    margin-top: 18px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  }
+  .player-divider {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    margin: 20px 0;
+  }
+  .player-desc {
+    font-size: 14px;
+    line-height: 1.8;
+    opacity: 0.65;
+    max-width: 320px;
+  }  .player-right { align-self: center; }
+  .detail-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .detail-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 24px 28px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .detail-card.lit {
+    border-color: rgba(255,255,255,0.35);
+    transform: translateX(6px) scale(1.02);
+    background: rgba(255,255,255,0.20);
+  }
+  .detail-card.lit::after { opacity: 1; }
+  .detail-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .detail-icon { font-size: 21px; }
+  .detail-label {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .detail-body {
+    font-size: 12px;
+    opacity: 0.6;
+    line-height: 1.7;
+    margin-top: 10px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s;
+    opacity: 0;
+  }
+  .detail-card.open .detail-body {
+    max-height: 200px;
+    opacity: 0.65;
+  }
+  .detail-chevron {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.4;
+    transition: transform 0.3s;
+  }
+  .detail-card.open .detail-chevron { transform: rotate(180deg); opacity: 0.7; }
+
+  /* ── CARD ZOOM MODAL ── */
+  #card-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  #card-modal.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .card-modal-box {
+    /* อิง 75% ของจอ iPad แนวนอน (1024×768) = 768×576px, ใช้ min() กันบานบนคอม */
+    width: min(75vw, 768px);
+    height: min(75vh, 576px);
+    background: linear-gradient(160deg, #161b22, #0d1117);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 28px;
+    padding: 36px 44px;
+    position: relative;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.65);
+    transform: scale(0.35);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease;
+  }
+  #card-modal.show .card-modal-box {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .card-modal-close {
+    position: absolute;
+    top: 24px; right: 28px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, background 0.2s;
+  }
+  .card-modal-close:hover { opacity: 1; background: rgba(255,255,255,0.16); }
+  .card-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .card-modal-icon { font-size: 32px; line-height: 1; }
+  .card-modal-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 700;
+  }
+  .card-modal-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    justify-content: center;
+    align-content: flex-start;
+    margin-top: 24px;
+  }
+  .point-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 150px;
+  }
+  .point-symbol {
+    width: 100%;
+    height: 120px;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  /* layout กริด (จำนวนคอลัมน์กำหนดจาก JS) — ขยายเต็มกรอบ */
+  .card-modal-points.grid {
+    display: grid;
+    gap: 24px 44px;
+    justify-items: stretch;
+    align-content: stretch;
+    grid-auto-rows: 1fr;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 0 auto;
+  }
+  .card-modal-points.grid .point-box { width: 100%; height: 100%; grid-column: span 2; justify-content: center; }
+  .card-modal-points.grid .point-symbol { height: auto; flex: 1 1 auto; min-height: 100px; max-height: 210px; font-size: 54px; }
+  .point-symbol.has-img {
+    background: #fff;
+    padding: 12px 16px;
+  }
+  .point-symbol img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+  /* ภาพถ่าย: เต็มกรอบ ไม่ต้องพื้นขาว */
+  .point-symbol.has-img.img-cover {
+    background: rgba(255,255,255,0.04);
+    padding: 0;
+    overflow: hidden;
+  }
+  .point-symbol.has-img.img-cover img {
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .point-caption {
+    font-family: 'Kanit', sans-serif;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.35;
+    opacity: 0.9;
+  }
+  .card-modal-airlines { margin-top: 30px; }
+  .card-modal-airlines .airlines-head {
+    font-family: 'Kanit', sans-serif;
+    font-size: 14px;
+    opacity: 0.5;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .airlines-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+  .airline-logo {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 22px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  .airline-logo img {
+    height: 100%;
+    width: auto;
+    max-width: 240px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ── SLIDE 10: RELATIONSHIP ── */
+  #slide-10 {
+    background: linear-gradient(135deg, #0d1117 0%, #0f1a2e 100%);
+  }
+  .rel-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 960px;
+  }
+  .rel-header {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .rel-header h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 900;
+  }
+  .rel-header p {
+    font-size: 14px;
+    opacity: 0.5;
+    margin-top: 6px;
+  }
+  .stream-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .stream-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+    border-radius: 20px;
+  }
+  .stream-card.upstream::before { background: linear-gradient(135deg, rgba(84,160,255,0.15), rgba(162,155,254,0.08)); }
+  .stream-card.downstream::before { background: linear-gradient(135deg, rgba(0,206,201,0.15), rgba(0,184,148,0.08)); }
+  .stream-card.lit { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); }
+  .stream-card.lit::before { opacity: 1; }
+  .stream-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .stream-sub {
+    font-size: 12px;
+    opacity: 0.4;
+    margin-bottom: 14px;
+  }
+  .stream-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.23,1,0.32,1);
+  }
+  .stream-card.open .stream-tags { max-height: 200px; }
+  .stream-tag {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.08);
+  }
+  .experience-row {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .exp-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .exp-pill.lit {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-3px);
+  }
+
+  /* ── SLIDE 11: THANK YOU ── */
+  #slide-11 {
+    background: radial-gradient(ellipse at center, #0f1a35 0%, #0d1117 70%);
+  }
+  .ty-orbit {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+    animation: spin var(--spd, 20s) linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ty-plane {
+    font-size: 80px;
+    animation: float 4s ease-in-out infinite;
+    margin-bottom: 28px;
+    filter: drop-shadow(0 0 40px rgba(255,195,18,0.5));
+  }
+  .ty-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #FF6B6B, #FF9F43, #FFC312);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .ty-sub {
+    font-size: 16px;
+    opacity: 0.4;
+    margin-top: 12px;
+    letter-spacing: 2px;
+  }
+  .ty-tags {
+    display: flex;
+    gap: 12px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ty-tag {
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.15);
+    opacity: 0.6;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    position: absolute;
+    top: 28px;
+    left: 44px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    opacity: 0.25;
+    text-transform: uppercase;
+  }
+  .slide-num {
+    position: absolute;
+    top: 28px;
+    right: 44px;
+    font-size: 11px;
+    opacity: 0.2;
+    font-family: 'Inter', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SLIDE 1 — COVER
+══════════════════════════════════════ -->
+<div class="slide active" id="slide-1">
+  <div class="stars" id="stars-1"></div>
+  <div class="cover-plane">✈️</div>
+  <div class="cover-title">
+    AVIATION<br><span>INDUSTRY</span>
+  </div>
+  <div class="cover-sub">องค์ประกอบของอุตสาหกรรมการบิน</div>
+  <div class="cover-runway-lights">
+    <div class="runway-strip">
+      <div class="rwy-light" style="--c:#FF6B6B"></div>
+      <div class="rwy-light" style="--c:#FF9F43"></div>
+      <div class="rwy-light" style="--c:#FFC312"></div>
+      <div class="rwy-light" style="--c:#54A0FF"></div>
+      <div class="rwy-light" style="--c:#A29BFE"></div>
+      <div class="rwy-light" style="--c:#00CEC9"></div>
+      <div class="rwy-light" style="--c:#00B894"></div>
+    </div>
+    <div class="runway-center-line"></div>
+    <div class="runway-strip">
+      <div class="rwy-light" style="--c:#FF6B6B"></div>
+      <div class="rwy-light" style="--c:#FF9F43"></div>
+      <div class="rwy-light" style="--c:#FFC312"></div>
+      <div class="rwy-light" style="--c:#54A0FF"></div>
+      <div class="rwy-light" style="--c:#A29BFE"></div>
+      <div class="rwy-light" style="--c:#00CEC9"></div>
+      <div class="rwy-light" style="--c:#00B894"></div>
+    </div>
+  </div>
+  <div class="cover-runway"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 2 — TABLE OF CONTENTS
+══════════════════════════════════════ -->
+<div class="slide" id="slide-2">
+  <div class="stars" id="stars-2"></div>
+  <span class="section-label">Contents</span>
+  <span class="slide-num">02 / 11</span>
+  <div class="toc-title">สารบัญ · Table of Contents</div>
+  <div class="toc-items">
+    <div class="toc-item" onclick="toggleLit(this)">
+      <div class="toc-num">01</div>
+      <div class="toc-content">
+        <h3>ผู้เล่นในอุตสาหกรรมการบิน</h3>
+      </div>
+      <div class="toc-arrow">→</div>
+    </div>
+    <div class="toc-item" onclick="toggleLit(this)">
+      <div class="toc-num">02</div>
+      <div class="toc-content">
+        <h3>ความสัมพันธ์ระหว่าง "การบิน" และ "การบริการ"</h3>
+      </div>
+      <div class="toc-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 3 — AIRLINES
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-3">
+  <div class="player-bg-accent" style="background:var(--airline)"></div>
+  <div class="stars" id="stars-3"></div>
+  <span class="section-label">Player 1 of 7</span>
+  <span class="slide-num">03 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 1</div>
+      <div class="player-title-row">
+        <span class="player-icon">✈️</span>
+        <div class="player-title-en" style="color:var(--airline)">Airlines</div>
+      </div>
+      <div class="player-title-th">สายการบิน</div>
+      <img class="player-photo" src="9c40eb49-9d70-4e30-9f05-7409a27948f1.jpg" alt="Airlines">
+      <div class="player-divider" style="background:var(--airline)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airline)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🌐</span>
+            <span class="detail-label">บทบาทในเศรษฐกิจ</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">เชื่อมต่อเครือข่ายเส้นทางบิน · กระตุ้นธุรกิจโรงแรมและร้านอาหาร · ส่งเสริมการค้าระหว่างประเทศ · ขนส่ง Air Cargo</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airline)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🌟</span>
+            <span class="detail-label">Full Service Airline (FSA)</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">บริการครบวงจร — โหลดกระเป๋าฟรี อาหารและเครื่องดื่ม ระบบบันเทิงบนเครื่อง และสะสมไมล์ เหมาะกับเที่ยวบินระยะไกล<br><br>ตัวอย่าง: Thai Airways · Singapore Airlines · Emirates</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airline)">
+          <div class="detail-card-header">
+            <span class="detail-icon">💰</span>
+            <span class="detail-label">Low Cost Carrier (LCC)</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">เน้นราคาประหยัด ลดบริการที่ไม่จำเป็น ผู้โดยสารจ่ายเฉพาะสิ่งที่ต้องการ เหมาะกับเที่ยวบินระยะสั้นและมีโปรโมชันบ่อย<br><br>ตัวอย่าง: AirAsia · Nok Air · Thai Lion Air</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 4 — AIRPORTS
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-4">
+  <div class="player-bg-accent" style="background:var(--airport)"></div>
+  <div class="stars" id="stars-4"></div>
+  <span class="section-label">Player 2 of 7</span>
+  <span class="slide-num">04 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 2</div>
+      <div class="player-title-row">
+        <span class="player-icon">🏢</span>
+        <div class="player-title-en" style="color:var(--airport)">Airports</div>
+      </div>
+      <div class="player-title-th">ท่าอากาศยาน</div>
+      <img class="player-photo" src="1596def7-0566-426e-aa3e-217f0e7d2acd.jpg" alt="Airports">
+      <div class="player-divider" style="background:var(--airport)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airport)">
+          <div class="detail-card-header">
+            <span class="detail-icon">⚙️</span>
+            <span class="detail-label">หน้าที่หลักของสนามบิน</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">รองรับการขึ้นลงอากาศยาน · รองรับผู้โดยสาร · จัดการสัมภาระ · ควบคุมความปลอดภัย · รองรับ Air Cargo · เชื่อมต่อการเดินทางภาคพื้น</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airport)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🏢</span>
+            <span class="detail-label">สนามบินสุวรรณภูมิ</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">สนามบินนานาชาติหลักของไทย · ศูนย์กลางการบินไทย รองรับผู้โดยสารระหว่างประเทศ · มีพื้นที่รองรับเยอะ และ Cargo Village · รองรับเที่ยวบิน Transit · แผนพัฒนาเป็น MRO Hub ในภูมิภาค</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--airport)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🏢</span>
+            <span class="detail-label">สนามบินดอนเมือง</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ศูนย์กลาง LCC และ Domestic Flights · ต้นทุนการดำเนินงานต่ำกว่า · ลดความแออัดของสุวรรณภูมิ · ปริมาณเที่ยวบินภายในประเทศสูง</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 5 — REGULATORY
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-5">
+  <div class="player-bg-accent" style="background:var(--reg)"></div>
+  <div class="stars" id="stars-5"></div>
+  <span class="section-label">Player 3 of 7</span>
+  <span class="slide-num">05 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 3</div>
+      <div class="player-title-row">
+        <span class="player-icon">📋</span>
+        <div class="player-title-en" style="color:var(--reg)">Regulatory</div>
+      </div>
+      <div class="player-title-th">หน่วยงานกำกับดูแล</div>
+      <img class="player-photo" src="a8ff87e2-94c1-48ea-9a7e-342d6fd495d4.jpg" alt="Regulatory">
+      <div class="player-divider" style="background:var(--reg)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--reg)">
+          <div class="detail-card-header">
+            <span class="detail-icon"></span>
+            <span class="detail-label">CAAT — สำนักงานการบินพลเรือนเเห่งประเทศไทย</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ออกใบอนุญาตสายการบิน · ตรวจสอบมาตรฐานความปลอดภัย · กำกับสนามบิน · ควบคุมกฎระเบียบการบิน · ตรวจสอบนักบินและช่างอากาศยาน · ผลักดัน Aviation Hub และ MRO ของประเทศ</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--reg)">
+          <div class="detail-card-header">
+            <span class="detail-icon"></span>
+            <span class="detail-label">ICAO — องค์กรการบินระหว่างประเทศ</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">องค์การการบินพลเรือนระหว่างประเทศ ภายใต้สหประชาชาติ · กำหนดมาตรฐานการบินสากล · Safety &amp; Security · Air Navigation Standards · มาตรฐานสนามบินทั่วโลก</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--reg)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🛡️</span>
+            <span class="detail-label">ความสำคัญของการกำกับดูแล</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">หากไม่มีหน่วยงานกำกับดูแล มาตรฐานความปลอดภัยจะไม่เป็นสากล ส่งผลต่อความเชื่อมั่นของผู้โดยสาร ประสิทธิภาพเส้นทางบิน และการพัฒนาอุตสาหกรรม</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 6 — GROUND HANDLING
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-6">
+  <div class="player-bg-accent" style="background:var(--ground)"></div>
+  <div class="stars" id="stars-6"></div>
+  <span class="section-label">Player 4 of 7</span>
+  <span class="slide-num">06 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 4</div>
+      <div class="player-title-row">
+        <span class="player-icon">🚜</span>
+        <div class="player-title-en" style="color:var(--ground)">Ground Services</div>
+      </div>
+      <div class="player-title-th">บริการภาคพื้น</div>
+      <img class="player-photo" src="e0b9360e-6b4d-4347-97e8-b246d3bb79fa.jpg" alt="Ground Services">
+      <div class="player-divider" style="background:var(--ground)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--ground)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🔧</span>
+            <span class="detail-label">หน้าที่หลัก</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">โหลดกระเป๋า · Pushback เครื่องบิน · เติมเชื้อเพลิง · เติมน้ำสะอาด · ลากจูงอากาศยาน · ดูแลผู้โดยสารหน้า Gate</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--ground)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🏢</span>
+            <span class="detail-label">ตัวอย่างองค์กร</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">Bangkok Flight Services (BFS) · BAGS Ground Services · บริษัทเหล่านี้ทำงานร่วมกับสายการบินและสนามบินโดยตรงทุกเที่ยวบิน</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--ground)">
+          <div class="detail-card-header">
+            <span class="detail-icon">⏱️</span>
+            <span class="detail-label">ความสำคัญของการบริการภาคพื้น</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">On-time Performance · Safety · Turnaround Time · Passenger Satisfaction — Ground Handling ที่ดีคือหัวใจของความตรงเวลาและความปลอดภัยของทุกเที่ยวบิน</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 7 — CARGO & LOGISTICS
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-7">
+  <div class="player-bg-accent" style="background:var(--cargo)"></div>
+  <div class="stars" id="stars-7"></div>
+  <span class="section-label">Player 5 of 7</span>
+  <span class="slide-num">07 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 5</div>
+      <div class="player-title-row">
+        <span class="player-icon">📦</span>
+        <div class="player-title-en" style="color:var(--cargo)">Cargo &amp; Logistics</div>
+      </div>
+      <div class="player-title-th">คาร์โก้และโลจิสติกส์</div>
+      <img class="player-photo" src="580f03a5-4e4f-4b1d-80ee-807c964f79af.jpg" alt="Cargo & Logistics">
+      <div class="player-divider" style="background:var(--cargo)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--cargo)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🚚</span>
+            <span class="detail-label">บทบาทหลัก</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ขนส่งสินค้าเร่งด่วน · ยาและเวชภัณฑ์ · E-commerce · Cold Chain Logistics สำหรับสินค้าที่ต้องการอุณหภูมิควบคุม</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--cargo)">
+          <div class="detail-card-header">
+            <span class="detail-icon">💡</span>
+            <span class="detail-label">ความสำคัญในวิกฤต</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ช่วง COVID-19 แม้ผู้โดยสารหยุดเดินทาง แต่ Cargo ยังคงดำเนินต่อไป ช่วยให้หลายสายการบินมีรายได้และอยู่รอดจากวิกฤต</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--cargo)">
+          <div class="detail-card-header">
+            <span class="detail-icon">✈️</span>
+            <span class="detail-label">การขนส่งสินค้าทางอากาศของไทย</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ประเทศไทยกำลังผลักดัน Air Cargo ให้เป็นส่วนสำคัญของ Aviation Hub โดยเฉพาะที่ท่าอากาศยานสุวรรณภูมิและพื้นที่ EEC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 8 — MRO
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-8">
+  <div class="player-bg-accent" style="background:var(--mro)"></div>
+  <div class="stars" id="stars-8"></div>
+  <span class="section-label">Player 6 of 7</span>
+  <span class="slide-num">08 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 6</div>
+      <div class="player-title-row">
+        <span class="player-icon">🔧</span>
+        <div class="player-title-en" style="color:var(--mro)">MRO</div>
+      </div>
+      <div class="player-title-th">การซ่อมบำรุงอากาศยาน</div>
+      <img class="player-photo" src="7452eef0-289a-483d-8695-633dc4eaf86e.jpg" alt="MRO">
+      <div class="player-divider" style="background:var(--mro)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--mro)">
+          <div class="detail-card-header">
+            <span class="detail-icon">⚙️</span>
+            <span class="detail-label">หน้าที่หลัก</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ตรวจสอบเครื่องบินตามรอบ · ซ่อมบำรุงตามมาตรฐาน · เปลี่ยนชิ้นส่วน · Overhaul เครื่องยนต์ ทุกขั้นตอนต้องผ่านการรับรองจากหน่วยงานกำกับดูแล</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--mro)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🛠️</span>
+            <span class="detail-label">ประเภทการซ่อมบำรุงอากาศยาน</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">Line Maintenance — บำรุงประจำวันที่ลานจอด<br>Base Maintenance — ซ่อมบำรุงใหญ่ในโรงซ่อม<br>Engine Overhaul — ถอดซ่อมเครื่องยนต์<br>Component Repair — ซ่อมชิ้นส่วนอะไหล่</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--mro)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🌏</span>
+            <span class="detail-label">ไทยกับการซ่อมบำรุงอากาศยาน</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ประเทศไทยกำลังพัฒนา MRO เพื่อเป็นศูนย์กลางภูมิภาค โดยเฉพาะที่สุวรรณภูมิและ EEC รัฐบาลและ CAAT สนับสนุนการลงทุนด้านนี้อย่างเต็มที่</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 9 — CATERING
+══════════════════════════════════════ -->
+<div class="slide player-slide" id="slide-9">
+  <div class="player-bg-accent" style="background:var(--catering)"></div>
+  <div class="stars" id="stars-9"></div>
+  <span class="section-label">Player 7 of 7</span>
+  <span class="slide-num">09 / 11</span>
+  <div class="player-layout">
+    <div class="player-left">
+      <div class="player-tag">ผู้เล่นที่ 7</div>
+      <div class="player-title-row">
+        <span class="player-icon">🍽️</span>
+        <div class="player-title-en" style="color:var(--catering)">Catering</div>
+      </div>
+      <div class="player-title-th">ครัวการบิน</div>
+      <img class="player-photo" src="810ca9ca-f647-4097-b6fe-3feb67594d98.jpg" alt="Catering">
+      <div class="player-divider" style="background:var(--catering)"></div>
+    </div>
+    <div class="player-right">
+      <div class="detail-cards">
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--catering)">
+          <div class="detail-card-header">
+            <span class="detail-icon">👨‍🍳</span>
+            <span class="detail-label">หน้าที่หลัก</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ผลิตอาหาร · ควบคุมคุณภาพ · จัดอาหารเฉพาะศาสนาและสุขภาพ (Halal, Kosher, Vegan, Diabetic) · จัดการโหลดอาหารขึ้นเครื่องตรงเวลา</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--catering)">
+          <div class="detail-card-header">
+            <span class="detail-icon">⚡</span>
+            <span class="detail-label">มาตรฐานที่ต้องทำได้</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">ความปลอดภัยสูงสุด (Food Safety) · ตรงเวลาทุกเที่ยวบิน · รองรับหลายเชื้อชาติและวัฒนธรรม · เก็บรักษาอุณหภูมิตลอดห่วงโซ่อาหาร</div>
+        </div>
+        <div class="detail-card" onclick="toggleCard(this)" data-color="var(--catering)">
+          <div class="detail-card-header">
+            <span class="detail-icon">🏆</span>
+            <span class="detail-label">ตัวอย่างผู้ให้บริการ</span>
+            <span class="detail-chevron">▼</span>
+          </div>
+          <div class="detail-body">Thai Airways Catering · LSG Sky Chefs (หนึ่งในผู้ให้บริการ Catering สายการบินที่ใหญ่ที่สุดในโลก) · Gate Gourmet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10 — RELATIONSHIP
+══════════════════════════════════════ -->
+<div class="slide" id="slide-10">
+  <div class="stars" id="stars-10"></div>
+  <span class="section-label">Chapter 2</span>
+  <span class="slide-num">10 / 11</span>
+  <div class="rel-layout">
+    <div class="rel-header">
+      <h2>การบิน <span style="color:var(--catering)">×</span> การบริการ</h2>
+      <p>อุตสาหกรรมการบินไม่ใช่แค่การขนส่ง — แต่เป็น <strong>Service Industry</strong></p>
+    </div>
+
+    <div class="experience-row">
+      <div class="exp-pill" onclick="toggleLit(this)">⏳ เวลา</div>
+      <div class="exp-pill" onclick="toggleLit(this)">🛡️ ความปลอดภัย</div>
+      <div class="exp-pill" onclick="toggleLit(this)">✨ ประสบการณ์</div>
+      <div class="exp-pill" onclick="toggleLit(this)">🎯 ความสะดวก</div>
+      <div class="exp-pill" onclick="toggleLit(this)">😌 ความสบาย</div>
+    </div>
+
+    <div class="stream-card upstream" onclick="toggleCard(this)" data-color="var(--reg)" data-title="Upstream" data-icon="⬆">
+      <div class="stream-title" style="color:var(--reg)">⬆ Upstream</div>
+      <div class="stream-sub">"สิ่งที่ทำให้การบินเกิดขึ้นได้" — โครงสร้างเบื้องหลัง</div>
+      <div class="stream-tags">
+        <span class="stream-tag">🔧 MRO</span>
+        <span class="stream-tag">🏢 Airport</span>
+        <span class="stream-tag">🚜 Ground Handling</span>
+        <span class="stream-tag">🍽 Catering</span>
+        <span class="stream-tag">📦 Cargo Infra</span>
+        <span class="stream-tag">⛽ Fuel</span>
+        <span class="stream-tag">🛩 ATC</span>
+        <span class="stream-tag">🏭 Aircraft OEM</span>
+      </div>
+    </div>
+
+    <div class="stream-card downstream" onclick="toggleCard(this)" data-color="var(--mro)" data-title="Downstream" data-icon="⬇">
+      <div class="stream-title" style="color:var(--mro)">⬇ Downstream</div>
+      <div class="stream-sub">"ผลลัพธ์ที่เกิดจากการบิน" — เศรษฐกิจและสังคม</div>
+      <div class="stream-tags">
+        <span class="stream-tag">🏨 Hotel &amp; Tourism</span>
+        <span class="stream-tag">🛍 Trade</span>
+        <span class="stream-tag">📱 E-commerce</span>
+        <span class="stream-tag">💼 Foreign Investment</span>
+        <span class="stream-tag">🏥 Medical Tourism</span>
+        <span class="stream-tag">🍜 Food &amp; Restaurant</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 11 — THANK YOU
+══════════════════════════════════════ -->
+<div class="slide" id="slide-11">
+  <div class="ty-orbit" style="width:400px;height:400px;--spd:30s;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg)"></div>
+  <div class="ty-orbit" style="width:600px;height:600px;--spd:45s;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg)"></div>
+  <div class="ty-orbit" style="width:800px;height:800px;--spd:60s;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg)"></div>
+  <div class="stars" id="stars-11"></div>
+  <div class="ty-plane">✈️</div>
+  <div class="ty-title">ขอบคุณ</div>
+  <div class="ty-sub">THANK YOU · 7 PLAYERS · 1 SKY</div>
+  <div class="ty-tags">
+    <span class="ty-tag" style="color:var(--airline)">✈ Airlines</span>
+    <span class="ty-tag" style="color:var(--airport)">🏢 Airports</span>
+    <span class="ty-tag" style="color:var(--reg)">📋 Regulatory</span>
+    <span class="ty-tag" style="color:var(--ground)">🚜 Ground</span>
+    <span class="ty-tag" style="color:var(--cargo)">📦 Cargo</span>
+    <span class="ty-tag" style="color:var(--mro)">🔧 MRO</span>
+    <span class="ty-tag" style="color:var(--catering)">🍽 Catering</span>
+  </div>
+</div>
+
+<!-- ══════ NAV ══════ -->
+<div id="nav">
+  <button onclick="goSlide(currentSlide-1)">←</button>
+  <div class="dot-nav" id="dots"></div>
+  <span id="slide-counter">1 / 11</span>
+  <button onclick="goSlide(currentSlide+1)">→</button>
+</div>
+
+<!-- ══════ CARD ZOOM MODAL ══════ -->
+<div id="card-modal" onclick="closeCardModal()">
+  <div class="card-modal-box" onclick="event.stopPropagation()">
+    <button class="card-modal-close" onclick="closeCardModal()">✕</button>
+    <div class="card-modal-header">
+      <span class="card-modal-icon"></span>
+      <span class="card-modal-title"></span>
+    </div>
+    <div class="card-modal-points"></div>
+    <div class="card-modal-airlines"></div>
+  </div>
+</div>
+
+<script>
+  const TOTAL = 11;
+  let currentSlide = 1;
+
+  // ── Stars ──
+  function makeStars(containerId, count=40) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+    for (let i=0; i<count; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random()*2+0.5;
+      s.style.cssText = `
+        width:${size}px;height:${size}px;
+        top:${Math.random()*100}%;left:${Math.random()*100}%;
+        --min:${(Math.random()*0.2).toFixed(2)};
+        --max:${(Math.random()*0.5+0.2).toFixed(2)};
+        --d:${(Math.random()*4+2).toFixed(1)}s;
+        animation-delay:${(Math.random()*4).toFixed(1)}s;
+      `;
+      c.appendChild(s);
+    }
+  }
+  for (let i=1; i<=TOTAL; i++) makeStars(`stars-${i}`, 35);
+
+  // ── Dots ──
+  const dotsEl = document.getElementById('dots');
+  for (let i=1; i<=TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===1?' active':'');
+    d.onclick = () => goSlide(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goSlide(n) {
+    if (n < 1 || n > TOTAL) return;
+    document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+    document.querySelectorAll('.dot')[currentSlide-1].classList.remove('active');
+    currentSlide = n;
+    document.getElementById(`slide-${currentSlide}`).classList.add('active');
+    document.querySelectorAll('.dot')[currentSlide-1].classList.add('active');
+    document.getElementById('slide-counter').textContent = `${currentSlide} / ${TOTAL}`;
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key==='Escape') { closeCardModal(); return; }
+    if (e.key==='ArrowRight'||e.key===' ') goSlide(currentSlide+1);
+    if (e.key==='ArrowLeft') goSlide(currentSlide-1);
+  });
+
+  // ── Toggle animations ──
+  function toggleLit(el) {
+    el.classList.toggle('lit');
+  }
+
+  function dimCard(c) {
+    c.classList.remove('lit');
+    c.style.borderColor = '';
+    c.style.boxShadow = '';
+  }
+
+  function toggleCard(el) {
+    // First click: light up (and dim any other lit card in the same slide).
+    if (!el.classList.contains('lit')) {
+      const slide = el.closest('.slide');
+      if (slide) {
+        slide.querySelectorAll('.detail-card.lit, .stream-card.lit').forEach(other => {
+          if (other !== el) dimCard(other);
+        });
+      }
+      el.classList.add('lit');
+      const col = el.dataset.color;
+      if (col) {
+        el.style.borderColor = `color-mix(in srgb, ${col} 60%, transparent)`;
+        el.style.boxShadow = `0 0 32px color-mix(in srgb, ${col} 40%, transparent)`;
+      }
+      return;
+    }
+    // Second click: zoom into the 75% modal.
+    openCardModal(el);
+  }
+
+  // Click on empty space → dim all lit cards (play exit animation).
+  document.addEventListener('click', e => {
+    if (e.target.closest('.detail-card')) return;
+    if (e.target.closest('.stream-card')) return;
+    if (e.target.closest('#card-modal')) return;
+    if (e.target.closest('#nav')) return;
+    document.querySelectorAll('.detail-card.lit, .stream-card.lit').forEach(dimCard);
+  });
+
+  // ── คำสั้นๆ ของแต่ละหัวข้อ (key = slideId::ชื่อหัวข้อ) — [อิโมจิ, คำ] ──
+  const CARD_POINTS = {
+    // Slide 3 — Airlines
+    "slide-3::Full Service Airline (FSA)": [["🧳","โหลดกระเป๋าฟรี"],["🍽️","อาหาร & เครื่องดื่ม"],["🎬","ระบบบันเทิง"],["✈️","สะสมไมล์"]],
+    "slide-3::Low Cost Carrier (LCC)": [["💰","ราคาประหยัด"],["✂️","ลดบริการส่วนเกิน"],["🎫","จ่ายเท่าที่ใช้"],["🏷️","โปรโมชันบ่อย"]],
+    "slide-3::บทบาทในเศรษฐกิจ": [["🌐","เชื่อมเครือข่ายบิน"],["🏨","หนุนโรงแรม/ร้านอาหาร"],["🤝","ส่งเสริมการค้า"],["📦","ขนส่ง Cargo"]],
+    // Slide 4 — Airports
+    "slide-4::สนามบินสุวรรณภูมิ": [["🌏","ศูนย์กลางการบินไทย"],["🏷️","พื้นที่รองรับเยอะ"],["📦","ศูนย์กลางการส่งสินค้าทางอากาศ"],["🔄","รองรับการต่อเที่ยวบิน"],["🔧","ศูนย์กลางการซ่อมบำรุงอากาศยาน"]],
+    "slide-4::สนามบินดอนเมือง": [["🌏","ศูนย์กลางการบินไทย"],["💺","ศูนย์กลางสายการบินราคาถูก"],["🛫","เน้นการบินภายในประเทศ"],["👥","ลดความแออัดจากสายการบินอื่น"]],
+    "slide-4::หน้าที่หลักของสนามบิน": [["🛬","ขึ้น-ลงอากาศยาน"],["🧑‍🤝‍🧑","รองรับผู้โดยสาร"],["🧳","จัดการสัมภาระ"],["🛡️","ความปลอดภัย"],["📦","ส่งสินค้าทางอากาศ"],["🚌","เชื่อมต่อภาคพื้น"]],
+    // Slide 5 — Regulatory
+    "slide-5::CAAT — สำนักงานการบินพลเรือนเเห่งประเทศไทย": [["📜","ออกใบอนุญาต"],["🛡️","ตรวจมาตรฐานปลอดภัย"],["🏢","กำกับสนามบิน"],["📋","ควบคุมกฎการบิน"],["👨‍✈️","ตรวจนักบิน/ช่าง"],["🔧","ผลักดัน Hub & MRO"]],
+    "slide-5::ICAO — องค์กรการบินระหว่างประเทศ": [["🌍","มาตรฐานสากล"],["🛡️","กำหนดความปลอดภัยสากล"],["🧭","ควบคุมการเส้นทางอากาศ"],["🏢","มาตรฐานสนามบินโลก"]],
+    "slide-5::ความสำคัญของการกำกับดูแล": [["🌐","มาตรฐานสากล"],["🤝","ทำให้ผู้โดยสารเชื่อมั่น"],["🛫","ประสิทธิภาพเส้นทาง"],["📈","พัฒนาอุตสาหกรรมการบิน"]],
+    // Slide 6 — Ground Services
+    "slide-6::หน้าที่หลัก": [["🧳","โหลดกระเป๋า"],["🛫","Pushback"],["⛽","เติมเชื้อเพลิง"],["💧","เติมน้ำสะอาด"],["🚜","ลากจูงเครื่อง"],["🚪","ดูแลผู้โดยสาร Gate"]],
+    "slide-6::ตัวอย่างองค์กร": [["unnamed.jpg"," Bangkok Flight Services"],["1690894013194.jpg","BAGS Ground Services"]],
+    "slide-6::ความสำคัญของการบริการภาคพื้น": [["⏱️","On-time"],["🛡️","Safety"],["🔄","Turnaround Time"],["😊","Passenger Satisfaction"]],
+    // Slide 7 — Cargo
+    "slide-7::บทบาทหลัก": [["🚀","สินค้าเร่งด่วน"],["🛒","E-commerce"],["❄️","Cold Chain"]],
+    "slide-7::ความสำคัญในวิกฤต": [["🦠","ช่วงโควิด"],["📦","Cargo ไปต่อ"],["💵","สร้างรายได้"],["🛟","สายการบินอยู่รอด"]],
+    "slide-7::การขนส่งสินค้าทางอากาศของไทย": [["🌏","ศูนย์การขนส่งสินค้าทางอากาศรายใหญ่"],["png-clipart-texte-de-l-aeroport-de-suvarnabhumi-aeroport-de-trat-aeroport-international-don-mueang-logo-bangkok-thailande-violet-violet.png","ศูนย์กลางที่สุวรรณภูมิ"]],
+    // Slide 8 — MRO
+    "slide-8::ประเภทการซ่อมบำรุงอากาศยาน": [["1633979124417.jpg","Line Maintenance","cover"],["images.jpg","Base Maintenance","cover"],["maxresdefault.jpg","Engine Overhaul","cover"],["aircraft-component-repair.jpg","Component Repair","cover"]],
+    "slide-8::หน้าที่หลัก": [["🔍","ตรวจตามรอบ"],["🛠️","ซ่อมตามมาตรฐาน"],["🔩","เปลี่ยนชิ้นส่วน"],["⚙️","Overhaul เครื่องยนต์"]],
+    "slide-8::ไทยกับการซ่อมบำรุงอากาศยาน": [["🌏","ศูนย์การซ่อมรายใหญ่"],["🏭","สุวรรณภูมิ / อู่ตะเภา"],["🏛️","รัฐ & CAAT หนุน"]],
+    // Slide 9 — Catering
+    "slide-9::หน้าที่หลัก": [["👨‍🍳","ผลิตอาหาร"]],
+    "slide-9::มาตรฐานที่ต้องทำได้": [["🛡️","Food Safety"],["⏱️","ตรงเวลาทุกไฟลต์"],["🌍","หลากวัฒนธรรม"],["🌡️","ควบคุมอุณหภูมิ"]],
+    "slide-9::ตัวอย่างผู้ให้บริการ": [["🍽️","Thai Airways Catering"],["👨‍🍳","LSG Sky Chefs"],["🍱","Gate Gourmet"]],
+    // Slide 10 — Relationship
+    "slide-10::Upstream": [["🔧","การซ่อมบำรุงอากาศยาน"],["🏢","สนามบิน"],["🚜","การบริการภาคพื้น"],["🍽️","อาหาร"],["📦","สินค้า"],["⛽","เชื้อเพลิง"],["🛩️","การควบคุมการเดินอากาศ"],["🏭","บริษัทผลิตเครื่องบิน"]],
+    "slide-10::Downstream": [["🏨","โรงเเรม"],["🛍️","การค้าขาย"],["📱","การซื้อขายออนไลน์"],["💼","ต่างชาติเข้ามาลงทุน"],["✈️","Tourism"]],
+  };
+
+  // ── จำนวนคอลัมน์ของกริดต่อหัวข้อ (ไม่กำหนด = เรียงแถวเดียวแบบ flex) ──
+  const CARD_COLS = {
+    "slide-3::บทบาทในเศรษฐกิจ": 2,            // 2×2
+    "slide-3::Full Service Airline (FSA)": 2, // 2,2 (+ โลโก้สายการบิน)
+    "slide-3::Low Cost Carrier (LCC)": 2,     // 2,2 (+ โลโก้สายการบิน)
+    "slide-4::หน้าที่หลักของสนามบิน": 3,       // 3,3
+    "slide-4::สนามบินสุวรรณภูมิ": 3,   // 3,2
+    "slide-4::สนามบินดอนเมือง": 2,     // 2,2
+    "slide-5::CAAT — สำนักงานการบินพลเรือนเเห่งประเทศไทย": 3,  // 3,3
+    "slide-5::ICAO — องค์กรการบินระหว่างประเทศ": 2,            // 2,2
+    "slide-5::ความสำคัญของการกำกับดูแล": 2,                    // 2,2
+    // Slide 6 — Ground
+    "slide-6::หน้าที่หลัก": 3,             // 3,3
+    "slide-6::ตัวอย่างองค์กร": 2,          // 2
+    "slide-6::ความสำคัญของการบริการภาคพื้น": 2,  // 2,2
+    // Slide 7 — Cargo
+    "slide-7::บทบาทหลัก": 2,               // 2,2
+    "slide-7::ความสำคัญในวิกฤต": 2,        // 2,2
+    "slide-7::การขนส่งสินค้าทางอากาศของไทย": 3,    // 3
+    // Slide 8 — MRO
+    "slide-8::ประเภทการซ่อมบำรุงอากาศยาน": 2,    // 2,2
+    "slide-8::หน้าที่หลัก": 2,             // 2,2
+    "slide-8::ไทยกับการซ่อมบำรุงอากาศยาน": 3,    // 3
+    // Slide 9 — Catering
+    "slide-9::หน้าที่หลัก": 2,             // 2,2
+    "slide-9::มาตรฐานที่ต้องทำได้": 2,     // 2,2
+    "slide-9::ตัวอย่างผู้ให้บริการ": 3,    // 3
+    // Slide 10 — Relationship
+    "slide-10::Upstream": 4,    // 4,4
+    "slide-10::Downstream": 3,  // 3,3
+  };
+
+  // ── โลโก้สายการบินที่ให้บริการ (แสดงใต้กล่องสัญลักษณ์) ──
+  const CARD_AIRLINES = {
+    "slide-3::Full Service Airline (FSA)": [
+      { src: "69273717-44ed-428b-aabe-d0aa3041be08.jpg", name: "Thai Airways" },
+      { src: "singapore-airlines-logo-free-download-singapore-airlines-logo-free-png.webp", name: "Singapore Airlines" },
+      { src: "Emirates_banner_logo.svg.png", name: "Emirates" },
+    ],
+    "slide-3::Low Cost Carrier (LCC)": [
+      { src: "AirAsia_Logo.svg.png", name: "AirAsia" },
+      { src: "nokair-logo.png", name: "Nok Air" },
+      { src: "lion-airlines_2e4b3e_opr.png", name: "Thai Lion Air" },
+    ],
+  };
+
+  // ── Card zoom modal ──
+  function openCardModal(el) {
+    const modal = document.getElementById('card-modal');
+    const icon  = el.querySelector('.detail-icon');
+    const label = el.querySelector('.detail-label');
+    const col   = el.dataset.color || 'white';
+    const slide = el.closest('.slide');
+    const labelText = (el.dataset.title || (label ? label.textContent : '')).trim();
+
+    modal.querySelector('.card-modal-icon').textContent = el.dataset.icon || (icon ? icon.textContent : '');
+    const titleEl = modal.querySelector('.card-modal-title');
+    titleEl.textContent = labelText;
+    titleEl.style.color = col;
+    modal.querySelector('.card-modal-box').style.borderColor =
+      `color-mix(in srgb, ${col} 50%, transparent)`;
+
+    // build symbol boxes from the keyword list
+    const key = (slide ? slide.id : '') + '::' + labelText;
+    const points = CARD_POINTS[key] || [];
+    const wrap = modal.querySelector('.card-modal-points');
+    wrap.innerHTML = '';
+    // จัดกริดตามจำนวนคอลัมน์ที่กำหนด (ใช้ track ละครึ่ง = cols*2 เพื่อจัดกึ่งกลางแถวสุดท้ายได้)
+    const cols = CARD_COLS[key];
+    if (cols) {
+      wrap.classList.add('grid');
+      wrap.style.gridTemplateColumns = `repeat(${cols * 2}, 1fr)`;
+    } else {
+      wrap.classList.remove('grid');
+      wrap.style.gridTemplateColumns = '';
+    }
+    points.forEach(p => {
+      const emoji = Array.isArray(p) ? p[0] : '';
+      const text  = Array.isArray(p) ? p[1] : p;
+      const box = document.createElement('div');
+      box.className = 'point-box';
+      const sym = document.createElement('div');
+      sym.className = 'point-symbol';
+      sym.style.borderColor = `color-mix(in srgb, ${col} 50%, transparent)`;
+      // ถ้าข้อมูลเป็นชื่อไฟล์รูป → แสดงรูป, ไม่งั้นแสดงอิโมจิ
+      const isImg = /\.(png|jpe?g|webp|svg|gif)$/i.test(emoji);
+      if (isImg) {
+        sym.classList.add('has-img');
+        if (Array.isArray(p) && p[2] === 'cover') sym.classList.add('img-cover');
+        const im = document.createElement('img');
+        im.src = emoji;
+        im.alt = text;
+        sym.appendChild(im);
+      } else {
+        sym.textContent = emoji;
+      }
+      // กดกล่องสัญลักษณ์ → สว่าง/หรี่ เท่านั้น
+      sym.addEventListener('click', () => {
+        const on = sym.classList.toggle('lit');
+        sym.style.borderColor = `color-mix(in srgb, ${col} ${on ? 75 : 50}%, transparent)`;
+        sym.style.boxShadow = on ? `0 0 26px color-mix(in srgb, ${col} 45%, transparent)` : '';
+        if (!isImg) sym.style.background = on ? `color-mix(in srgb, ${col} 16%, transparent)` : '';
+        sym.style.transform = on ? 'scale(1.05)' : '';
+      });
+      const cap = document.createElement('div');
+      cap.className = 'point-caption';
+      cap.textContent = text;
+      box.appendChild(sym);
+      box.appendChild(cap);
+      wrap.appendChild(box);
+    });
+
+    // ถ้าแถวสุดท้ายไม่เต็ม → จัดกึ่งกลาง (เลื่อนกล่องแรกของแถวสุดท้าย)
+    if (cols) {
+      const rem = points.length % cols;
+      if (rem !== 0) {
+        const firstOfLastRow = wrap.children[points.length - rem];
+        if (firstOfLastRow) firstOfLastRow.style.gridColumn = ((cols - rem) + 1) + ' / span 2';
+      }
+    }
+
+    // airline logos section (only for cards that have them)
+    const airWrap = modal.querySelector('.card-modal-airlines');
+    const airlines = CARD_AIRLINES[key] || [];
+    airWrap.innerHTML = '';
+    if (airlines.length) {
+      const head = document.createElement('div');
+      head.className = 'airlines-head';
+      head.textContent = 'สายการบินที่ให้บริการ';
+      const row = document.createElement('div');
+      row.className = 'airlines-row';
+      airlines.forEach(a => {
+        const chip = document.createElement('div');
+        chip.className = 'airline-logo';
+        const img = document.createElement('img');
+        img.src = a.src;
+        img.alt = a.name;
+        chip.appendChild(img);
+        row.appendChild(chip);
+      });
+      airWrap.appendChild(head);
+      airWrap.appendChild(row);
+      airWrap.style.display = '';
+    } else {
+      airWrap.style.display = 'none';
+    }
+
+    modal.classList.add('show');
+  }
+
+  function closeCardModal() {
+    document.getElementById('card-modal').classList.remove('show');
+  }
+
+  // stream cards just toggle
+</script>
+</body>
+</html>
