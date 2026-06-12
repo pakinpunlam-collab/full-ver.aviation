@@ -1474,7 +1474,7 @@
       sym.className = 'point-symbol';
       sym.style.borderColor = `color-mix(in srgb, ${col} 50%, transparent)`;
       // ถ้าข้อมูลเป็นชื่อไฟล์รูป → แสดงรูป, ไม่งั้นแสดงอิโมจิ
-      const isImg = /\.(png|jpe?g|webp|svg|gif)$/i.test(emoji);
+      const isImg = /^data:image\//i.test(emoji) || /\.(png|jpe?g|webp|svg|gif)$/i.test(emoji);
       if (isImg) {
         sym.classList.add('has-img');
         if (Array.isArray(p) && p[2] === 'cover') sym.classList.add('img-cover');
